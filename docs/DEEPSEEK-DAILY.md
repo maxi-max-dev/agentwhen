@@ -30,3 +30,17 @@ Controlled fixtures are stored separately and never included in daily receipts.
 Disable from DeepSeek Harness → Plugins → agent-eta toggle off; restart if the
 client requests it. Keep receipts and profile backups. The observer is a bundle,
 so removing only its config override does not disable it.
+
+## Native panel (v0.12.0-deepseek.5)
+
+The panel lives above the conversation input, via conversation.input.dock. The
+host serves a read-only /agent-eta/status endpoint; a mounted panel polls every
+2 seconds, stops on unmount, and marks disconnection instead of stale forecasts.
+The SDK root exports are preserved; a root host mount is also exported because
+DSH discovers client manifests only from bare package names, not subpaths.
+Receipt counts survive restarts, but historical predictions never become live.
+Current primary ETA remains the original algorithm; the candidate is labelled
+experimental. Unknown/cold-start/waiting/invalid values are not invented.
+The optional UI demo uses fixed, visibly labelled examples in React state only;
+it never emits host events or writes to the collection journal. It is UI
+acceptance, not an autonomous coding run or accuracy evidence.

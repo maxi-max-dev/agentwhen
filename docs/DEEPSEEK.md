@@ -3,7 +3,7 @@
 This branch adds a host-only DSH observer. It does not replace the stable CLI/SDK
 algorithm, change the conversation, add model tools, or call a model. It emits
 `agent-eta/update` with original/candidate/step-competitor forecasts and records
-sanitized events under `.agent-eta/deepseek/`. No composer UI is included yet.
+sanitized events under `.agent-eta/deepseek/`. The daily v0.12.0-deepseek.5 client adds a native input-dock status panel.
 
 Verified controlled runtime: `@deepseek-ai/dsh-session@0.2.1-rc.2`,
 `@deepseek-ai/cordis@4.0.5`. Actual SessionStore event publication plus actual

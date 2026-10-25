@@ -4,6 +4,7 @@ import { dirname, isAbsolute } from 'node:path';
 import { resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { alias, classifyTool, normalizeEvent } from './normalize.js';
+import { createPanelState, registerPanel } from './panel-host.js';
 import { DeepSeekETA } from './model.js';
 
 export const name = 'agent-eta-deepseek-shadow';
@@ -15,8 +16,10 @@ export function apply(ctx, config = {}) {
   mkdirSync(dirname(config.journalPath), { recursive:true, mode:0o700 });
   writeFileSync(config.journalPath,'',{flag:'wx',mode:0o600});
   const engine=new DeepSeekETA(), seeded=new WeakSet();
+  const panel=createPanelState(config.journalPath);
+  registerPanel(ctx,panel,engine);
   writeFileSync(config.journalPath+'.ready.json',JSON.stringify({schema:'agent-eta.dsh-ready/1',
-    version:'0.12.0-deepseek.2',startedAt:Date.now(),pid:globalThis.process.pid,
+    version:'0.12.0-deepseek.5',startedAt:Date.now(),pid:globalThis.process.pid,
     journalPath:config.journalPath,mode:'shadow',modelCalls:0}),{flag:'wx',mode:0o600});
   const publish=value=>{try{ctx.emit('agent-eta/update',value);}catch{/* A consumer cannot poison observation. */}};
   let queue=Promise.resolve();
@@ -45,9 +48,11 @@ export function apply(ctx, config = {}) {
       const outcome=normalized.type==='turn/end'?engine.outcomes.at(-1):undefined;
       const record={schema:'agent-eta.dsh-receipt/1',observedAt,session:id,event:normalized,prediction,outcome};
       await appendFile(config.journalPath,JSON.stringify(record)+'\n',{mode:0o600});
+      panel.written(record);
       // Consumers can subscribe; original Agent ETA and the DSH UI stay untouched.
       publish(prediction ?? {id, status:'terminal_or_unknown'});
     } catch {
+      panel.failed();
       engine.session(id,role).invalid=true;
       publish({id,status:'invalid',reason:'event_or_journal_failure'});
       ctx.logger?.warn('Agent ETA observation incomplete; estimates withdrawn.');
@@ -76,10 +81,12 @@ export function apply(ctx, config = {}) {
         engine.observeToolPhase(id,call,phase,time);
         engine.observeToolOutcome(id,call,outcome,time);
         const prediction=engine.predict(id,time);
-        await appendFile(config.journalPath,JSON.stringify({schema:'agent-eta.dsh-tool-receipt/1',session:id,
-          observedAt:time,call,phase,outcome,provenance:'live_tools_result',prediction})+'\n',{mode:0o600});
+        const record={schema:'agent-eta.dsh-tool-receipt/1',session:id,observedAt:time,call,phase,outcome,provenance:'live_tools_result',prediction};
+        await appendFile(config.journalPath,JSON.stringify(record)+'\n',{mode:0o600});
+        panel.written(record);
         publish(prediction);
       }catch{
+        panel.failed();
         engine.session(id).invalid=true;publish({id,status:'invalid',reason:'tool_observation_failure'});
       }
     });

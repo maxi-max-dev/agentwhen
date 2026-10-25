@@ -1,6 +1,6 @@
 {
   "name": "agent-eta",
-  "version": "0.12.0-deepseek.2",
+  "version": "0.12.0-deepseek.5",
   "private": true,
   "type": "module",
   "description": "How long will your agent take? Local runtime estimates with a portable CLI, JavaScript SDK and agent skill.",
@@ -34,9 +34,10 @@
     "agentwhen": "bin/agentwhen.js"
   },
   "exports": {
-    ".": "./src/generic/tracker.js",
+    ".": "./src/deepseek/package.js",
     "./deepseek": "./src/deepseek/plugin.js",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./client": "./src/deepseek/client.js"
   },
   "repository": {
     "type": "git",
@@ -65,6 +66,12 @@
   "dsh": {
     "bundle": {
       "patch": "./integrations/deepseek/cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "external": [
+        "react"
+      ]
     }
   }
 }
