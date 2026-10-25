@@ -19,7 +19,7 @@ export function apply(ctx, config = {}) {
   const panel=createPanelState(config.journalPath);
   registerPanel(ctx,panel,engine);
   writeFileSync(config.journalPath+'.ready.json',JSON.stringify({schema:'agent-eta.dsh-ready/1',
-    version:'0.12.0-deepseek.5',startedAt:Date.now(),pid:globalThis.process.pid,
+    version:'0.12.0-deepseek.6',startedAt:Date.now(),pid:globalThis.process.pid,
     journalPath:config.journalPath,mode:'shadow',modelCalls:0}),{flag:'wx',mode:0o600});
   const publish=value=>{try{ctx.emit('agent-eta/update',value);}catch{/* A consumer cannot poison observation. */}};
   let queue=Promise.resolve();

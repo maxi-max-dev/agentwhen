@@ -8,14 +8,14 @@
 
 ## DeepSeek Harness 状态面板（实验版）
 
-`v0.12.0-deepseek.5` 在对话输入框上方显示：原算法与新算法的预计剩余时间、
+`v0.12.0-deepseek.6` 在对话输入框上方显示：原算法与新算法的预计剩余时间、
 步骤/测试失败/返工状态，以及记录条数和最近写入时间。**不增加模型调用**。
 原算法仍是基线，**尚未证明新算法更准**；冷启动样本不足时不会编造倒计时。
 
 使用 DeepSeek Harness 随附的 CLI 安装：
 
 ```sh
-dsh plugin --profile desktop add 'github:maxi-max-dev/agent-eta#v0.12.0-deepseek.5' --ignore-scripts
+dsh plugin --profile desktop add 'github:maxi-max-dev/agent-eta#v0.12.0-deepseek.6' --ignore-scripts
 ```
 
 在没有运行中任务时重启应用，打开对话即可看到面板。

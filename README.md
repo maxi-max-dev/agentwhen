@@ -10,7 +10,7 @@ Local, experimental runtime estimates for agents. Track a bounded run and see re
 
 ## DeepSeek Harness panel (experimental)
 
-The `v0.12.0-deepseek.5` preview adds a native panel above the conversation input:
+The `v0.12.0-deepseek.6` preview adds a native panel above the conversation input:
 original and candidate remaining-time estimates, steps/test-failure/rework signals,
 and recording counts with the last successful write time. It makes **no additional
 model calls**. The original estimator remains the baseline; improved accuracy has
@@ -19,7 +19,7 @@ model calls**. The original estimator remains the baseline; improved accuracy ha
 Install into your desktop profile with the CLI bundled with DeepSeek Harness:
 
 ```sh
-dsh plugin --profile desktop add 'github:maxi-max-dev/agent-eta#v0.12.0-deepseek.5' --ignore-scripts
+dsh plugin --profile desktop add 'github:maxi-max-dev/agent-eta#v0.12.0-deepseek.6' --ignore-scripts
 ```
 
 Restart the idle app, open a conversation, and look above the input box.

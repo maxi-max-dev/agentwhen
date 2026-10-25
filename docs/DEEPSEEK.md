@@ -3,7 +3,7 @@
 This branch adds a host-only DSH observer. It does not replace the stable CLI/SDK
 algorithm, change the conversation, add model tools, or call a model. It emits
 `agent-eta/update` with original/candidate/step-competitor forecasts and records
-sanitized events under `.agent-eta/deepseek/`. The daily v0.12.0-deepseek.5 client adds a native input-dock status panel.
+sanitized events under `.agent-eta/deepseek/`. The daily v0.12.0-deepseek.6 client adds a native input-dock status panel.
 
 Verified controlled runtime: `@deepseek-ai/dsh-session@0.2.1-rc.2`,
 `@deepseek-ai/cordis@4.0.5`. Actual SessionStore event publication plus actual
@@ -12,13 +12,13 @@ failing/fixed Node tests passed. This is not autonomous model accuracy evidence.
 ## Install the desktop preview
 
 ```sh
-dsh plugin --profile desktop add 'github:maxi-max-dev/agent-eta#v0.12.0-deepseek.5' --ignore-scripts
+dsh plugin --profile desktop add 'github:maxi-max-dev/agent-eta#v0.12.0-deepseek.6' --ignore-scripts
 ```
 
 If `dsh` is not on PATH on macOS, use the bundled launcher:
 
 ```sh
-"/Applications/DeepSeek Harness.app/Contents/Resources/runtime/cli/bin/dsh" plugin --profile desktop add 'github:maxi-max-dev/agent-eta#v0.12.0-deepseek.5' --ignore-scripts
+"/Applications/DeepSeek Harness.app/Contents/Resources/runtime/cli/bin/dsh" plugin --profile desktop add 'github:maxi-max-dev/agent-eta#v0.12.0-deepseek.6' --ignore-scripts
 ```
 
 Before restarting an idle app, choose a private absolute log directory in

@@ -44,3 +44,23 @@ experimental. Unknown/cold-start/waiting/invalid values are not invented.
 The optional UI demo uses fixed, visibly labelled examples in React state only;
 it never emits host events or writes to the collection journal. It is UI
 acceptance, not an autonomous coding run or accuracy evidence.
+
+## Reliability corrections (v0.12.0-deepseek.6)
+
+The panel now displays the latest **successfully written** forecast for the
+current turn. The read-only status endpoint no longer recomputes unsaved
+forecasts. It shows their timestamp and withdraws numeric display after 60
+seconds without an update; this is a UI freshness limit, not an ETA adjustment
+or an evaluation exclusion. The next saved structural event restores the view.
+Cold-start progress names the currently available history count; the host's
+running state prevents a newly mounted observer from claiming a busy session
+is idle. Collapse preference persists locally and both estimates remain visible
+in the compact row. Disconnection or recording errors withdraw estimates.
+
+The latest-write timestamp is the maximum across journals, independent of
+random filename order. Incomplete historical lines are counted and disclosed.
+The report now keys starts, forecasts and outcomes by journal **and** turn ID,
+so a turn interrupted by restart cannot borrow its start from another mount.
+This fixes enforcement of the already frozen restart exclusion; estimator
+parameters, training selection and sampling windows are unchanged. Old journals
+are never rewritten. Report schema /2 adds turnsWithoutObservedStart.
