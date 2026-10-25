@@ -36,6 +36,15 @@ export class DeepSeekETA {
     if (!this.sessions.has(id)) this.sessions.set(id,{id,role,seq:null,time:0,model:'unknown',open:null,invalid:false,stepSamples:[],turnSteps:[]});
     return this.sessions.get(id);
   }
+  observeToolPhase(id,callId,phase,time) {
+    const r=this.sessions.get(id)?.open;
+    if(!r||r.calls.has(callId))return;
+    r.calls.set(callId,{phase,settled:true,known:false});
+    if(phase==='test')r.testCalls++;
+    if(phase==='edit'&&r.unresolved&&r.phase!=='edit')r.rework++;
+    r.phase=phase;
+    r.snapshots.push({elapsed:active(r,time),features:features(r)});
+  }
   observeToolOutcome(id,callId,outcome,time) {
     const r=this.sessions.get(id)?.open,call=r?.calls.get(callId);
     if(!r||!call||call.phase!=='test'||call.known||!['passed','failed'].includes(outcome))return;

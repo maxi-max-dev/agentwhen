@@ -13,9 +13,10 @@ failing/fixed Node tests passed. This is not autonomous model accuracy evidence.
 
 The package exports `agent-eta/deepseek` and includes a DSH bundle patch. Build a
 local archive with `npm pack --pack-destination /absolute/output/directory`.
-DSH's package-manager installation into an actual desktop profile has NOT been
-tested; no existing profile was changed in this pilot. Prefer an isolated profile
-for installation acceptance before daily use. The verified direct Cordis API is:
+As of 2026-10-25, v0.12.0-deepseek.2 was installed offline using the bundled
+`dsh plugin --profile desktop add` command. The native desktop plugin list shows
+it enabled and its host PID wrote a readiness receipt. No paid task was sent.
+Daily collection and evaluation limits: [daily protocol](DEEPSEEK-DAILY.md). The verified direct Cordis API is:
 
 ```js
 import * as eta from 'agent-eta/deepseek';

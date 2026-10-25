@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { normalizeEvent, classifyTool } from '../src/deepseek/normalize.js';
@@ -127,5 +127,30 @@ test('canonical tool hook captures exit status before lossy durable rendering',a
       {isError:false,value:{kind:'foreground',exitCode:1},content:[{type:'text',text:'secret stdout'}]});
     await handlers['session/flush']();assert.equal(updates.at(-1).features.unresolved,true);
     assert.ok(!readFileSync(journalPath,'utf8').includes('secret stdout'));
+  }finally{rmSync(dir,{recursive:true,force:true});}
+});
+test('PTC child test fail/edit/pass is observed without durable child calls',()=>{
+  const d=driver();d.begin();
+  d.engine.observeToolPhase('s','child1','test',1);
+  d.engine.observeToolOutcome('s','child1','failed',2);
+  d.engine.observeToolPhase('s','child2','edit',3);
+  assert.equal(d.engine.predict('s',4).features.rework,true);
+  d.engine.observeToolPhase('s','child3','test',5);
+  d.engine.observeToolOutcome('s','child3','passed',6);
+  assert.equal(d.engine.predict('s',7).features.unresolved,false);
+  d.engine.observeToolPhase('s','child3','test',8);
+  assert.equal(d.engine.session('s').open.testCalls,2);
+});
+test('journal directory supports restarts and emits a local readiness receipt',()=>{
+  const dir=mkdtempSync(join(tmpdir(),'eta-dsh-start-'));
+  try{
+    const ctx={on:()=>{},emit:()=>{}};
+    apply(ctx,{journalDirectory:dir});apply(ctx,{journalDirectory:dir});
+    const files=readdirSync(dir);
+    assert.equal(files.filter(f=>f.endsWith('.jsonl')).length,2);
+    for(const file of files.filter(f=>f.endsWith('.ready.json'))){
+      const ready=JSON.parse(readFileSync(join(dir,file),'utf8'));
+      assert.equal(ready.modelCalls,0);assert.equal(ready.mode,'shadow');
+    }
   }finally{rmSync(dir,{recursive:true,force:true});}
 });
