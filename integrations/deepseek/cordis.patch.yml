@@ -1,0 +1,5 @@
+# Opt-in shadow observer. No model tools, extra model requests, or UI replacement.
+- insert:
+    - id: agent-eta-deepseek-shadow
+      name: 'agent-eta/deepseek'
+      config: {}

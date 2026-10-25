@@ -40,10 +40,11 @@ export function normalizeEvent(event) {
     if (e.turn === undefined || (event.type.startsWith('step/') && e.step === undefined)) throw new Error('INVALID_DSH_LIFECYCLE');
     if (e.type === 'turn/end') e.reason = ['completed','aborted','blocked','error','max-tokens','interrupted','forked'].includes(d.reason?.kind) ? d.reason.kind : 'unknown';
   } else if (event.type === 'request/context') {
+    if(typeof d.provider!=='string'||typeof d.model!=='string'||!d.provider||!d.model)throw new Error('INVALID_DSH_MODEL');
     e.type = 'model'; e.model = alias(`${d.provider ?? ''}/${d.model ?? ''}`);
   } else if (event.type === 'tool/call') {
     if (typeof d.callId !== 'string') throw new Error('INVALID_DSH_CALL');
-    let args = {}; try { args = JSON.parse(d.arguments); } catch { /* Unknown classification. */ }
+    let args = {}; try { args = JSON.parse(d.arguments) ?? {}; } catch { /* Unknown classification. */ }
     e.type = event.type; e.call = alias(d.callId); e.phase = classifyTool(d.name, args);
   } else if (event.type === 'tool/result') {
     if (typeof d.message?.toolCallId !== 'string') throw new Error('INVALID_DSH_RESULT');

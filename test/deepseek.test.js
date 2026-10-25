@@ -81,16 +81,51 @@ test('signal neighbours differ from steps-only ablation without imposing fixed r
   assert.ok(informed.forecast.p20<=informed.forecast.p50&&informed.forecast.p50<=informed.forecast.p80);
   assert.equal(candidateForecast(base,history.slice(0,2),f,M).method,'original_fallback');
 });
-test('host observer records sanitized receipts once and never adds model tools',()=>{
+test('host observer records sanitized receipts once and never adds model tools',async()=>{
   const dir=mkdtempSync(join(tmpdir(),'eta-dsh-test-'));
   try{
     let handler;const emitted=[];
-    const ctx={on:(name,fn)=>{assert.equal(name,'session/event');handler=fn;},emit:(...args)=>emitted.push(args)};
+    const ctx={on:(name,fn)=>{if(name==='session/event')handler=fn;},emit:(...args)=>emitted.push(args)};
     const journalPath=join(dir,'journal.jsonl');apply(ctx,{journalPath});
     const session={id:'private-id',snapshotEvents:()=>[]};
     const event={seq:0,time:0,type:'turn/start',data:{turn:1}};
-    handler(session,event);handler(session,event);
+    await handler(session,event);await handler(session,event);
     const text=readFileSync(journalPath,'utf8');assert.equal(text.trim().split('\n').length,1);assert.ok(!text.includes('private-id'));
     assert.equal(emitted.length,1);
+  }finally{rmSync(dir,{recursive:true,force:true});}
+});
+test('resumed host uses async query prefix, not future events; journal failures withdraw',async()=>{
+  const dir=mkdtempSync(join(tmpdir(),'eta-dsh-resume-'));
+  try{
+    let handler;const updates=[];
+    const past=[{seq:0,time:0,type:'turn/start',data:{turn:1}},{seq:1,time:1,type:'request/context',data:{provider:'p',model:'m'}}];
+    const current={seq:2,time:2,type:'step/start',data:{turn:1,step:0}};
+    const ctx={on:(name,fn)=>{if(name==='session/event')handler=fn;},emit:(name,p)=>updates.push(p),
+      sessionQuery:{readSession:async()=>({inheritedEventCount:0,events:[...past,current,{seq:3,time:999,type:'turn/end',data:{turn:1,reason:{kind:'completed'}}}]})}};
+    const journalPath=join(dir,'journal.jsonl');apply(ctx,{journalPath});
+    await handler({id:'session',header:{}},current);
+    assert.equal(updates.at(-1).status,'experimental');assert.equal(updates.at(-1).features.steps,0);
+    // A log sink error never turns into a valid prediction.
+    rmSync(journalPath);rmSync(dir,{recursive:true});
+    await handler({id:'session',header:{}},{seq:3,time:3,type:'step/end',data:{turn:1,step:0}});
+    assert.equal(updates.at(-1).status,'invalid');
+  }finally{rmSync(dir,{recursive:true,force:true});}
+});
+test('canonical tool hook captures exit status before lossy durable rendering',async()=>{
+  const dir=mkdtempSync(join(tmpdir(),'eta-dsh-tool-'));
+  try{
+    const handlers={},updates=[];
+    const ctx={on:(name,fn)=>handlers[name]=fn,emit:(_,p)=>updates.push(p)};
+    const journalPath=join(dir,'journal.jsonl');apply(ctx,{journalPath});
+    const session={id:'s',header:{}};
+    await handlers['session/event'](session,{seq:0,time:Date.now(),type:'turn/start',data:{turn:1}});
+    await handlers['session/event'](session,{seq:1,time:Date.now(),type:'tool/call',data:{turn:1,step:0,callId:'test',name:'bash',arguments:'{"command":"npm test"}'}});
+    handlers['tools/result']({agent:{session},name:'bash',arguments:{command:'npm test'},callId:'test'},
+      {isError:false,value:{kind:'foreground',exitCode:0,timedOut:true}});
+    await handlers['session/flush']();assert.equal(updates.at(-1).features.unresolved,false);
+    handlers['tools/result']({agent:{session},name:'bash',arguments:{command:'npm test'},callId:'test'},
+      {isError:false,value:{kind:'foreground',exitCode:1},content:[{type:'text',text:'secret stdout'}]});
+    await handlers['session/flush']();assert.equal(updates.at(-1).features.unresolved,true);
+    assert.ok(!readFileSync(journalPath,'utf8').includes('secret stdout'));
   }finally{rmSync(dir,{recursive:true,force:true});}
 });

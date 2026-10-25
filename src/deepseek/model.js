@@ -36,6 +36,13 @@ export class DeepSeekETA {
     if (!this.sessions.has(id)) this.sessions.set(id,{id,role,seq:null,time:0,model:'unknown',open:null,invalid:false,stepSamples:[],turnSteps:[]});
     return this.sessions.get(id);
   }
+  observeToolOutcome(id,callId,outcome,time) {
+    const r=this.sessions.get(id)?.open,call=r?.calls.get(callId);
+    if(!r||!call||call.phase!=='test'||call.known||!['passed','failed'].includes(outcome))return;
+    call.known=true;r.testKnown++;
+    if(outcome==='failed'){r.failures++;r.unresolved=true;}else r.unresolved=false;
+    r.snapshots.push({elapsed:active(r,time),features:features(r)});
+  }
   apply(id, e, role='root') {
     const s=this.session(id,role);
     if (s.seq!==null && e.seq<=s.seq) return; // live replay duplicate
@@ -69,11 +76,7 @@ export class DeepSeekETA {
     }
     if(e.type==='tool/result'||e.type==='job/settled') {
       const call=r.calls.get(e.call);
-      if(call && call.phase==='test' && !call.known && e.outcome!=='unknown') {
-        call.known=true;r.testKnown++;
-        if(e.outcome==='failed'){r.failures++;r.unresolved=true;}
-        else r.unresolved=false;
-      }
+      this.observeToolOutcome(id,e.call,e.outcome,e.time);
       if(e.type==='tool/result' && call){call.settled=true;r.waitingCalls.delete(e.call);}
     }
     if(e.type==='approval/asked'){r.approvals.add(e.approval);r.hadWait=true;}
