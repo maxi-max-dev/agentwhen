@@ -8,6 +8,25 @@ Local, experimental runtime estimates for agents. Track a bounded run and see re
 
 > **v0.11.0 is experimental.** Runtime visibility and prospective evaluation work; general prediction accuracy is not established. This tool does not validate the quality of an agent's work.
 
+## DeepSeek Harness panel (experimental)
+
+The `v0.12.0-deepseek.5` preview adds a native panel above the conversation input:
+original and candidate remaining-time estimates, steps/test-failure/rework signals,
+and recording counts with the last successful write time. It makes **no additional
+model calls**. The original estimator remains the baseline; improved accuracy has
+**not** been established. Cold starts show no invented countdown.
+
+Install into your desktop profile with the CLI bundled with DeepSeek Harness:
+
+```sh
+dsh plugin --profile desktop add 'github:maxi-max-dev/agent-eta#v0.12.0-deepseek.5' --ignore-scripts
+```
+
+Restart the idle app, open a conversation, and look above the input box.
+See [installation, log location and limitations](docs/DEEPSEEK.md) and the
+[prospective collection protocol](docs/DEEPSEEK-DAILY.md). The local UI demo is
+explicitly labelled and does not enter real observations. No npm registry release.
+
 ## Run in two minutes
 
 Requires **Node.js 22.13+**. Node 22 may print an experimental SQLite warning. No `npm install` required.

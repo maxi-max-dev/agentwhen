@@ -9,6 +9,34 @@ Verified controlled runtime: `@deepseek-ai/dsh-session@0.2.1-rc.2`,
 `@deepseek-ai/cordis@4.0.5`. Actual SessionStore event publication plus actual
 failing/fixed Node tests passed. This is not autonomous model accuracy evidence.
 
+## Install the desktop preview
+
+```sh
+dsh plugin --profile desktop add 'github:maxi-max-dev/agent-eta#v0.12.0-deepseek.5' --ignore-scripts
+```
+
+If `dsh` is not on PATH on macOS, use the bundled launcher:
+
+```sh
+"/Applications/DeepSeek Harness.app/Contents/Resources/runtime/cli/bin/dsh" plugin --profile desktop add 'github:maxi-max-dev/agent-eta#v0.12.0-deepseek.5' --ignore-scripts
+```
+
+Before restarting an idle app, choose a private absolute log directory in
+`~/.dsh/profiles/desktop/cordis.patch.yml` (append, preserving existing settings):
+
+```yaml
+- id: agent-eta-deepseek-shadow
+  config:
+    journalDirectory: /absolute/private/eta-logs
+```
+
+Replace the example path with a writable directory. Without this override the
+journal lives under `.agent-eta/deepseek` relative to the host working directory.
+After restart: Plugins → agent-eta should be enabled; open an existing conversation
+to see the input-dock panel. Toggle the plugin off to disable it; preserve logs.
+Validated native desktop: 0.2.1-rc.3; isolated SessionStore fixture: 0.2.1-rc.2.
+Other versions/platforms are not native UI compatibility claims.
+
 ## Opt-in loading
 
 The package exports `agent-eta/deepseek` and includes a DSH bundle patch. Build a

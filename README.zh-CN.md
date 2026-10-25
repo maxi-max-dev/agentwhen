@@ -6,6 +6,22 @@
 
 这是 **v0.11.0 实验版本**：接入、状态、估计和前瞻评测可用，跨用户的预测准确度尚未建立。它不判断 Agent 的答案或代码是否合格。
 
+## DeepSeek Harness 状态面板（实验版）
+
+`v0.12.0-deepseek.5` 在对话输入框上方显示：原算法与新算法的预计剩余时间、
+步骤/测试失败/返工状态，以及记录条数和最近写入时间。**不增加模型调用**。
+原算法仍是基线，**尚未证明新算法更准**；冷启动样本不足时不会编造倒计时。
+
+使用 DeepSeek Harness 随附的 CLI 安装：
+
+```sh
+dsh plugin --profile desktop add 'github:maxi-max-dev/agent-eta#v0.12.0-deepseek.5' --ignore-scripts
+```
+
+在没有运行中任务时重启应用，打开对话即可看到面板。
+[安装与日志位置](docs/DEEPSEEK.md) · [真实数据采集协议](docs/DEEPSEEK-DAILY.md)。
+界面内的零费用演示明确标注为示例，不混入真实样本。暂不发布 npm registry。
+
 ## 两分钟跑起来
 
 需要 **Node.js 22.13 或更高版本**，无需 `npm install`。
